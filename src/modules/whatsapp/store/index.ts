@@ -101,6 +101,9 @@ export const bindSessionStore = (sock: WASocket, sessionId: string, io: Server |
             dbSessionId = session.id;
         }
 
+        // Hora H: ignora o histórico (evita baixar milhares de mídias). WAAKG_SYNC_HISTORY=1 restaura.
+        if (process.env.WAAKG_SYNC_HISTORY !== "1") return;
+
         // Save all historical messages
         if (messages && messages.length > 0) {
             logger.info("Store", `Syncing ${messages.length} historical messages...`);
@@ -175,12 +178,16 @@ export const bindSessionStore = (sock: WASocket, sessionId: string, io: Server |
                 const keyId = update.key?.id;
                 if (!keyId) continue;
 
+                // Enum proto.WebMessageInfo.Status do Baileys: ERROR=0, PENDING=1, SERVER_ACK=2,
+                // DELIVERY_ACK=3, READ=4, PLAYED=5. (Antes o mapa estava deslocado em 1: "entregue"
+                // aparecia como "lida".)
                 const statusMap: Record<number, string> = {
                     0: 'PENDING',
-                    1: 'SENT',
-                    2: 'DELIVERED',
-                    3: 'READ',
-                    4: 'READ', // Played
+                    1: 'PENDING',
+                    2: 'SENT',
+                    3: 'DELIVERED',
+                    4: 'READ',
+                    5: 'READ', // Played
                 };
 
                 const status = statusMap[update.update?.status || 0] || 'PENDING';

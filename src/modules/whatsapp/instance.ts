@@ -68,7 +68,8 @@ export class WhatsAppInstance {
             },
             browser: ["Ubuntu", "Chrome", "20.0.04"],
             markOnlineOnConnect: botConfig?.alwaysOnline ?? true,
-            syncFullHistory: true,
+            // Hora H: não precisa do histórico do WhatsApp (só das mensagens novas). Para voltar ao padrão: WAAKG_SYNC_HISTORY=1.
+            syncFullHistory: process.env.WAAKG_SYNC_HISTORY === "1",
         });
 
         // Attach Lekzo Baileys compatible helper methods

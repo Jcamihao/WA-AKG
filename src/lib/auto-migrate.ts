@@ -65,7 +65,7 @@ export async function runAutoMigration(): Promise<void> {
             // PostgreSQL Migration Handler
             try {
                 await prisma.$executeRawUnsafe(`ALTER TYPE "Role" ADD VALUE IF NOT EXISTS 'USER';`);
-                const updated = await prisma.$executeRawUnsafe(`UPDATE "User" SET "role" = 'USER' WHERE "role" = 'OWNER';`);
+                const updated = await prisma.$executeRawUnsafe(`UPDATE "User" SET "role" = 'USER' WHERE "role"::text = 'OWNER';`);
                 if (updated > 0) {
                     logger.success("Database", `PostgreSQL: Migrated ${updated} user(s) from 'OWNER' to 'USER'.`);
                 }
